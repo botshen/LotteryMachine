@@ -11,11 +11,12 @@ interface Ball {
 
 const LotteryMachine: React.FC = () => {
   const [balls, setBalls] = useState<Ball[]>([]);
+  const [generatedBalls, setGeneratedBalls] = useState<Ball[]>([]);
   const [isStarted, setIsStarted] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const numBalls = 32; // 要添加的球的数量
+    const numBalls = 33; // 要添加的球的数量
 
     // 创建球的初始状态
     const initialBalls: Ball[] = Array.from({length: numBalls}, (_, index) => ({
@@ -73,6 +74,21 @@ const LotteryMachine: React.FC = () => {
 
     timeoutRef.current = setTimeout(() => {
       setIsStarted(false);
+
+      const remainingBalls = balls.filter(
+        ball =>
+          !generatedBalls.find(generatedBall => generatedBall.id === ball.id),
+      );
+
+      if (remainingBalls.length > 0) {
+        const randomIndex = Math.floor(Math.random() * remainingBalls.length);
+        const newGeneratedBall = remainingBalls[randomIndex];
+
+        setGeneratedBalls(prevGeneratedBalls => [
+          ...prevGeneratedBalls,
+          newGeneratedBall,
+        ]);
+      }
     }, 2000);
   };
 
@@ -92,6 +108,14 @@ const LotteryMachine: React.FC = () => {
             key={ball.id}
             style={[styles.ball, {left: ball.left, top: ball.top}]}>
             <Text style={styles.ballText}>{ball.id}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.bottomContainer}>
+        {/* 渲染已生成的球 */}
+        {generatedBalls.map(ball => (
+          <View key={ball.id} style={styles.bottomBall}>
+            <Text style={styles.bottomBallText}>{ball.id}</Text>
           </View>
         ))}
       </View>
@@ -149,6 +173,24 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
   ballText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  bottomContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  bottomBall: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'red',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 5,
+  },
+  bottomBallText: {
     color: 'white',
     fontWeight: 'bold',
   },
