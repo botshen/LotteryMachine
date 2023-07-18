@@ -81,7 +81,6 @@ const LotteryMachine: React.FC = () => {
           ball =>
             !generatedBalls.find(generatedBall => generatedBall.id === ball.id),
         );
-
         if (remainingBalls.length > 0) {
           const randomIndex = Math.floor(Math.random() * remainingBalls.length);
           const newGeneratedBall = remainingBalls[randomIndex];
@@ -133,9 +132,20 @@ const LotteryMachine: React.FC = () => {
       </View>
       <View style={styles.bottomContainer}>
         {/* 渲染已生成的球 */}
-        {generatedBalls.map(ball => (
-          <View key={ball.id} style={styles.bottomBall}>
-            <Text style={styles.bottomBallText}>{ball.id}</Text>
+        {generatedBalls.map((ball, index) => (
+          <View
+            key={ball.id}
+            style={[
+              styles.bottomBall,
+              index === 5 && numGeneratedBalls >= 5 ? styles.blueBall : null,
+            ]}>
+            <Text
+              style={[
+                styles.bottomBallText,
+                index === 5 && numGeneratedBalls >= 5 ? styles.blueText : null,
+              ]}>
+              {ball.id}
+            </Text>
           </View>
         ))}
       </View>
