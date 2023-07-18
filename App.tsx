@@ -14,13 +14,14 @@ const LotteryMachine: React.FC = () => {
   const [generatedBalls, setGeneratedBalls] = useState<Ball[]>([]);
   const [isStarted, setIsStarted] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [numGeneratedBalls, setNumGeneratedBalls] = useState(0);
 
   useEffect(() => {
     const numBalls = 33; // 要添加的球的数量
 
     // 创建球的初始状态
     const initialBalls: Ball[] = Array.from({length: numBalls}, (_, index) => ({
-      id: index.toString(),
+      id: (index + 1).toString(),
       left: Math.random() * 270, // 随机初始位置
       top: Math.random() * 370, // 随机初始位置
       speedX: Math.random() > 0.5 ? 1 : -1, // 随机速度方向
@@ -64,7 +65,7 @@ const LotteryMachine: React.FC = () => {
   const handleStartLottery = () => {
     if (isStarted) {
       return;
-    } // 避免重复点击开始摇奖按钮
+    }
 
     setIsStarted(true);
 
@@ -75,20 +76,29 @@ const LotteryMachine: React.FC = () => {
     timeoutRef.current = setTimeout(() => {
       setIsStarted(false);
 
-      const remainingBalls = balls.filter(
-        ball =>
-          !generatedBalls.find(generatedBall => generatedBall.id === ball.id),
-      );
+      setNumGeneratedBalls(prevNumGeneratedBalls => {
+        const remainingBalls = balls.filter(
+          ball =>
+            !generatedBalls.find(generatedBall => generatedBall.id === ball.id),
+        );
 
-      if (remainingBalls.length > 0) {
-        const randomIndex = Math.floor(Math.random() * remainingBalls.length);
-        const newGeneratedBall = remainingBalls[randomIndex];
+        if (remainingBalls.length > 0) {
+          const randomIndex = Math.floor(Math.random() * remainingBalls.length);
+          const newGeneratedBall = remainingBalls[randomIndex];
 
-        setGeneratedBalls(prevGeneratedBalls => [
-          ...prevGeneratedBalls,
-          newGeneratedBall,
-        ]);
-      }
+          setGeneratedBalls(prevGeneratedBalls => [
+            ...prevGeneratedBalls,
+            newGeneratedBall,
+          ]);
+
+          if (prevNumGeneratedBalls + 1 === 5) {
+            const first16Balls = remainingBalls.slice(0, 16);
+            setBalls(first16Balls);
+          }
+        }
+
+        return prevNumGeneratedBalls + 1;
+      });
     }, 2000);
   };
 
@@ -106,8 +116,18 @@ const LotteryMachine: React.FC = () => {
         {balls.map(ball => (
           <View
             key={ball.id}
-            style={[styles.ball, {left: ball.left, top: ball.top}]}>
-            <Text style={styles.ballText}>{ball.id}</Text>
+            style={[
+              styles.ball,
+              {left: ball.left, top: ball.top},
+              numGeneratedBalls >= 5 ? styles.blueBall : null,
+            ]}>
+            <Text
+              style={[
+                styles.ballText,
+                numGeneratedBalls >= 5 ? styles.blueText : null,
+              ]}>
+              {numGeneratedBalls >= 5 ? (Number(ball.id) % 16) + 1 : ball.id}
+            </Text>
           </View>
         ))}
       </View>
@@ -193,6 +213,12 @@ const styles = StyleSheet.create({
   bottomBallText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  blueBall: {
+    backgroundColor: 'blue',
+  },
+  blueText: {
+    color: 'white',
   },
 });
 
