@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 
 interface Ball {
@@ -11,9 +11,11 @@ interface Ball {
 
 const LotteryMachine: React.FC = () => {
   const [balls, setBalls] = useState<Ball[]>([]);
+  const [isStarted, setIsStarted] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const numBalls = 20; // 要添加的球的数量
+    const numBalls = 32; // 要添加的球的数量
 
     // 创建球的初始状态
     const initialBalls: Ball[] = Array.from({length: numBalls}, (_, index) => ({
@@ -28,54 +30,78 @@ const LotteryMachine: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setBalls(prevBalls =>
-        prevBalls.map(ball => {
-          let {left, top, speedX, speedY} = ball;
+    let intervalId: NodeJS.Timeout | null = null;
 
-          left += speedX * 5; // 移动增量值
-          top += speedY * 5; // 移动增量值
+    if (isStarted) {
+      intervalId = setInterval(() => {
+        setBalls(prevBalls =>
+          prevBalls.map(ball => {
+            let {left, top, speedX, speedY} = ball;
 
-          // 边界检查，如果超出边界则反转速度方向
-          if (left <= 0 || left >= 270) {
-            speedX *= -1;
-          }
-          if (top <= 0 || top >= 370) {
-            speedY *= -1;
-          }
+            left += speedX * 20; // 移动增量值
+            top += speedY * 20; // 移动增量值
 
-          return {...ball, left, top, speedX, speedY};
-        }),
-      );
-    }, 30);
+            // 边界检查，如果超出边界则反转速度方向
+            if (left <= 0 || left >= 270) {
+              speedX *= -1;
+            }
+            if (top <= 0 || top >= 370) {
+              speedY *= -1;
+            }
 
-    return () => clearInterval(intervalId);
-  }, []);
+            return {...ball, left, top, speedX, speedY};
+          }),
+        );
+      }, 30);
+    }
+
+    return () => {
+      clearInterval(intervalId!);
+    };
+  }, [isStarted]);
+
+  const handleStartLottery = () => {
+    if (isStarted) {
+      return;
+    } // 避免重复点击开始摇奖按钮
+
+    setIsStarted(true);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      setIsStarted(false);
+    }, 2000);
+  };
 
   return (
-    <View style={styles.lotteryMachine}>
-      {/* 渲染球 */}
-      {balls.map(ball => (
-        <View
-          key={ball.id}
-          style={[styles.ball, {left: ball.left, top: ball.top}]}>
-          <Text style={styles.ballText}>{ball.id}</Text>
-        </View>
-      ))}
-    </View>
+    <>
+      {!isStarted && (
+        <TouchableOpacity
+          onPress={handleStartLottery}
+          style={styles.startButton}>
+          <Text style={styles.buttonText}>开始摇奖</Text>
+        </TouchableOpacity>
+      )}
+      <View style={styles.lotteryMachine}>
+        {/* 渲染球 */}
+        {balls.map(ball => (
+          <View
+            key={ball.id}
+            style={[styles.ball, {left: ball.left, top: ball.top}]}>
+            <Text style={styles.ballText}>{ball.id}</Text>
+          </View>
+        ))}
+      </View>
+    </>
   );
 };
 
 const App: React.FC = () => {
-  const handleStartLottery = () => {
-    // 在这里处理开始摇奖的逻辑
-  };
-
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handleStartLottery} style={styles.button}>
-        <Text style={styles.buttonText}>开始摇奖</Text>
-      </TouchableOpacity>
       <LotteryMachine />
     </View>
   );
@@ -87,8 +113,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  button: {
-    marginBottom: 20,
+  startButton: {
+    position: 'absolute',
+    top: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: 'lightblue',
