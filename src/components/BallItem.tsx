@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Platform} from 'react-native';
+import {Text, Platform} from 'react-native';
 // import {LinearGradient} from 'expo-linear-gradient'; // For managed Expo projects
 // OR
 import LinearGradient from 'react-native-linear-gradient'; // For bare React Native projects
