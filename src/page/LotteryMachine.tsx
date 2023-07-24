@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
-import {Ball} from '../components/Ball';
+import {BallItem} from '../components/BallItem';
 interface Ball {
   id: string;
   left: number;
@@ -62,7 +62,7 @@ export const LotteryMachine: React.FC = () => {
   }, [isStarted]);
 
   const handleStartLottery = () => {
-    if (isStarted || numGeneratedBalls >= 6) {
+    if (isStarted || numGeneratedBalls > 6) {
       setBalls([]);
       setGeneratedBalls([]);
       setNumGeneratedBalls(0);
@@ -108,7 +108,7 @@ export const LotteryMachine: React.FC = () => {
             newGeneratedBall,
           ]);
 
-          if (prevNumGeneratedBalls + 1 === 5) {
+          if (prevNumGeneratedBalls === 5) {
             const first16Balls = remainingBalls.slice(0, 16);
             setBalls(first16Balls);
           }
@@ -116,56 +116,33 @@ export const LotteryMachine: React.FC = () => {
 
         return prevNumGeneratedBalls + 1;
       });
-    }, 2000);
+    }, 1000);
   };
 
   return (
     <>
-      <Ball number={5} style={{}} />
-      {!isStarted && (
-        <TouchableOpacity
-          onPress={handleStartLottery}
-          style={styles.startButton}>
-          <Text style={styles.buttonText}>开始摇奖</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity onPress={handleStartLottery} style={styles.startButton}>
+        <Text style={styles.buttonText}>
+          {generatedBalls.length === 7 ? '重来' : '开始'}
+        </Text>
+      </TouchableOpacity>
       <View style={styles.lotteryMachine}>
-        {/* 渲染球 */}
         {balls.map(ball => (
-          <View
+          <BallItem
             key={ball.id}
-            style={[
-              styles.ball,
-              {left: ball.left, top: ball.top},
-              numGeneratedBalls >= 5 ? styles.blueBall : null,
-            ]}>
-            <Text
-              style={[
-                styles.ballText,
-                numGeneratedBalls >= 5 ? styles.blueText : null,
-              ]}>
-              {numGeneratedBalls >= 5 ? (Number(ball.id) % 16) + 1 : ball.id}
-            </Text>
-          </View>
+            containerStyle={[styles.ball, {left: ball.left, top: ball.top}]}
+            number={ball.id}
+            color={numGeneratedBalls >= 6 ? 'blue' : 'red'}
+          />
         ))}
       </View>
       <View style={styles.bottomContainer}>
-        {/* 渲染已生成的球 */}
         {generatedBalls.map((ball, index) => (
-          <View
-            key={ball.id}
-            style={[
-              styles.bottomBall,
-              index === 5 && numGeneratedBalls >= 5 ? styles.blueBall : null,
-            ]}>
-            <Text
-              style={[
-                styles.bottomBallText,
-                index === 5 && numGeneratedBalls >= 5 ? styles.blueText : null,
-              ]}>
-              {ball.id}
-            </Text>
-          </View>
+          <BallItem
+            color={index === 6 ? 'blue' : 'red'}
+            number={ball.id}
+            key={index}
+          />
         ))}
       </View>
     </>
@@ -177,18 +154,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  xxx: {
+    borderWidth: 1,
+  },
   startButton: {
-    position: 'absolute',
-    top: 20,
+    // position: 'absolute',
+    // top: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: 'lightblue',
     borderRadius: 5,
+    marginBottom: 20,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
   },
   lotteryMachine: {
     position: 'relative',
