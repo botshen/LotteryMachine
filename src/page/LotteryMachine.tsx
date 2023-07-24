@@ -16,7 +16,7 @@ export const LotteryMachine: React.FC = () => {
   const [numGeneratedBalls, setNumGeneratedBalls] = useState(0);
 
   useEffect(() => {
-    const numBalls = 33; // 要添加的球的数量
+    const numBalls = 32; // 要添加的球的数量
 
     // 创建球的初始状态
     const initialBalls: Ball[] = Array.from({length: numBalls}, (_, index) => ({
@@ -107,10 +107,18 @@ export const LotteryMachine: React.FC = () => {
             ...prevGeneratedBalls,
             newGeneratedBall,
           ]);
-
           if (prevNumGeneratedBalls === 5) {
-            const first16Balls = remainingBalls.slice(0, 16);
-            setBalls(first16Balls);
+            const initialBallsBlue: Ball[] = Array.from(
+              {length: 16},
+              (_, index) => ({
+                id: (index + 1).toString(),
+                left: Math.random() * 270, // 随机初始位置
+                top: Math.random() * 370, // 随机初始位置
+                speedX: Math.random() > 0.5 ? 1 : -1, // 随机速度方向
+                speedY: Math.random() > 0.5 ? 1 : -1, // 随机速度方向
+              }),
+            );
+            setBalls(initialBallsBlue);
           }
         }
 
