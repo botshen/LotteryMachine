@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
-
+import {Ball} from '../components/Ball';
 interface Ball {
   id: string;
   left: number;
@@ -8,8 +8,7 @@ interface Ball {
   speedX: number;
   speedY: number;
 }
-
-const LotteryMachine: React.FC = () => {
+export const LotteryMachine: React.FC = () => {
   const [balls, setBalls] = useState<Ball[]>([]);
   const [generatedBalls, setGeneratedBalls] = useState<Ball[]>([]);
   const [isStarted, setIsStarted] = useState(false);
@@ -122,6 +121,7 @@ const LotteryMachine: React.FC = () => {
 
   return (
     <>
+      <Ball number={5} style={{}} />
       {!isStarted && (
         <TouchableOpacity
           onPress={handleStartLottery}
@@ -171,15 +171,6 @@ const LotteryMachine: React.FC = () => {
     </>
   );
 };
-
-const App: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <LotteryMachine />
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -250,5 +241,3 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 });
-
-export default App;
