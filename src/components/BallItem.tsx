@@ -1,7 +1,5 @@
 import React from 'react';
-import {Text, Platform} from 'react-native';
-// import {LinearGradient} from 'expo-linear-gradient'; // For managed Expo projects
-// OR
+import {Text} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient'; // For bare React Native projects
 
 interface BallProps {
@@ -27,20 +25,6 @@ export const BallItem: React.FC<BallProps> = (props: BallProps) => {
           borderRadius: 50,
           alignItems: 'center',
           justifyContent: 'center',
-          ...Platform.select({
-            ios: {
-              shadowColor: 'rgba(0, 0, 0, 0.8)',
-              shadowOffset: {
-                width: 0,
-                height: 0,
-              },
-              shadowRadius: 10,
-              shadowOpacity: 1,
-            },
-            android: {
-              elevation: 10,
-            },
-          }),
         },
       ]}>
       <Text style={{color: 'white', fontSize: 16}}>{number}</Text>
