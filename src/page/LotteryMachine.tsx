@@ -95,6 +95,11 @@ export const LotteryMachine: React.FC = () => {
           ]);
           if (prevNumGeneratedBalls === 5) {
             setBallsFun(16);
+            setGeneratedBalls(prevGeneratedBalls => [
+              ...prevGeneratedBalls.sort((a, b) => {
+                return parseInt(a.id) - parseInt(b.id);
+              }),
+            ]);
           }
         }
 
